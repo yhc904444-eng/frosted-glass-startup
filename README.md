@@ -1,15 +1,21 @@
 # Codex Liquid Glass Startup
 
-A silent cinematic opening for Codex on Windows. A liquid glass interface assembles in a 32-second film, then holds its final image until the Codex window is ready to use.
+A silent cinematic opening for Codex on Windows. A liquid glass interface assembles in a 14-second film, then holds its final image until the Codex window is ready to use.
 
 ![The liquid glass opening](docs/preview.png)
+
+[Watch the 14-second film](https://github.com/yhc904444-eng/codex-liquid-glass-startup/releases/download/v1.1.0/Codex-Liquid-Glass-Startup-1.1.0-Preview.mp4)
+
+A light bead connects glass-edge refraction, a springing send control, miniature file previews, and a floating search palette. The panels settle together and a ripple travels through the assembled interface.
+
+![Scenes from the opening](docs/storyboard.jpg)
 
 This is an independent community companion, unaffiliated with OpenAI. It works with the official Microsoft Store Codex app and the optional [Codex Liquid Glass desktop customization](https://github.com/yhc904444-eng/codex-liquid-glass). It does not include Codex or an OpenAI account.
 
 ## Install
 
 1. Install OpenAI Codex for Windows, or the Codex Liquid Glass desktop customization linked above.
-2. Download **Codex-Liquid-Glass-Startup-1.0.0-Windows-x64-Setup.exe** from [Releases](https://github.com/yhc904444-eng/codex-liquid-glass-startup/releases/latest).
+2. Download **Codex-Liquid-Glass-Startup-1.1.0-Windows-x64-Setup.exe** from [Releases](https://github.com/yhc904444-eng/codex-liquid-glass-startup/releases/latest).
 3. Double-click the installer and select **Install**. No terminal, Node.js, Python, developer SDK, or manual configuration is needed.
 4. Open Codex normally. The helper displays the opening once for each new client session. You can also use **Codex Liquid Glass Startup** from the Start menu, or **Preview animation** to watch without launching Codex.
 
@@ -47,7 +53,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\Build.ps1
 
 `Build.ps1` downloads a pinned WebView2 SDK from NuGet, verifies its SHA-256, downloads Microsoft's signed runtime bootstrapper, builds the native launcher and installer, runs the policy tests, and writes the installer plus SHA-256 to `dist/`. The release payload is an explicit file list; profiles, logs, local QA, account data, and previous installations are excluded.
 
-Media is stored as release assets rather than large Git objects. `Get-Media.ps1` downloads the v1.0.0 media ZIP and verifies its pinned SHA-256 before extraction. See [assets/README.md](assets/README.md) and [media-source/README.md](media-source/README.md) to reproduce the film instead.
+Media is stored as release assets rather than large Git objects. `Get-Media.ps1` downloads the v1.1.0 media ZIP and verifies its pinned SHA-256 before extraction. See [assets/README.md](assets/README.md) and [media-source/README.md](media-source/README.md) to reproduce the film instead.
 
 See [validation](docs/VALIDATION.md), [architecture](docs/ARCHITECTURE.md), and [third-party notices](THIRD-PARTY-NOTICES.md).
 

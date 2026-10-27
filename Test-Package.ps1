@@ -3,7 +3,7 @@ param([switch]$NativePlayback)
 $ErrorActionPreference='Stop'
 $qaRoot=Join-Path $PSScriptRoot ('qa\package-'+[Guid]::NewGuid().ToString('N'))
 $testInstall=Join-Path $qaRoot 'clean-install'
-$setup=Join-Path $PSScriptRoot 'dist\Codex-Liquid-Glass-Startup-1.0.0-Windows-x64-Setup.exe'
+$setup=Join-Path $PSScriptRoot 'dist\Codex-Liquid-Glass-Startup-1.1.0-Windows-x64-Setup.exe'
 New-Item -ItemType Directory -Force -Path $qaRoot | Out-Null
 foreach($iteration in 1..2){
     $process=Start-Process -FilePath $setup -ArgumentList ('--test-install="'+$testInstall+'"') -WindowStyle Hidden -Wait -PassThru

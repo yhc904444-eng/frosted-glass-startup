@@ -16,7 +16,7 @@ using Microsoft.Win32;
 internal static class Setup
 {
     internal const string Title = "Codex Liquid Glass Startup";
-    internal const string Version = "1.0.0";
+    internal const string Version = "1.1.0";
     internal const string UninstallKey = @"Software\Microsoft\Windows\CurrentVersion\Uninstall\CodexLiquidGlassStartup";
     internal static readonly string DefaultTarget = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Programs", "CodexLiquidGlassStartup");
     internal static readonly string Data = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "CodexLiquidGlassStartup");
@@ -249,7 +249,7 @@ internal sealed class Wizard : Form
         FormBorderStyle = FormBorderStyle.FixedDialog; MaximizeBox = false; Font = new Font("Segoe UI", 10);
         var heading = new Label { Text = Setup.Title, Font = new Font("Segoe UI", 18, FontStyle.Bold), AutoSize = true, Location = new Point(24, 24) };
         message.SetBounds(26, 78, 538, 130);
-        message.Text = "A silent, 32-second liquid glass opening for Codex.\r\n\r\nSetup installs this app for your Windows account and automatically sets up Microsoft WebView2 if needed. Internet may be required. Install OpenAI Codex or Codex Liquid Glass to open a workspace; Preview works independently.";
+        message.Text = "A silent, 14-second liquid glass opening for Codex.\r\n\r\nSetup installs this app for your Windows account and automatically sets up Microsoft WebView2 if needed. Internet may be required. Install OpenAI Codex or Codex Liquid Glass to open a workspace; Preview works independently.";
         auto.Text = "Play when Codex opens (start the helper with Windows)"; auto.SetBounds(27, 220, 535, 30); auto.Checked = true;
         install.Text = "Install"; install.SetBounds(434, 280, 130, 36); install.Click += Install;
         preview.Text = "Preview"; preview.SetBounds(285, 280, 130, 36); preview.Visible = false;

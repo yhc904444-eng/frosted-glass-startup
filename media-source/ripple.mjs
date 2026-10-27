@@ -1,15 +1,9 @@
-// Radial optical ripple in the same projected glass plane used by FilmV2.
-export const RIPPLE_START=26.3;
-export const RIPPLE_END=29.7;
+// Optical ripple shares the exact camera pose with the 14-second composition.
+import {cameraAt as pose,RIPPLE_START,RIPPLE_END} from './src/details-timeline.mjs';
+export {RIPPLE_START,RIPPLE_END};
 const clamp=x=>Math.max(0,Math.min(1,x));
 const ease=x=>{const u=clamp(x);return u*u*u*(u*(u*6-15)+10);};
 const lerp=(a,b,u)=>a+(b-a)*u;
-const keys=[
- [26.2,{s:.84,x:800,y:450,rx:5,ry:5,rz:1}],
- [28.2,{s:.84,x:800,y:450,rx:2,ry:-2,rz:0}],
- [32,{s:.78,x:800,y:465,rx:0,ry:0,rz:0}],
-];
-function pose(t){let i=0;while(i<keys.length-2&&t>keys[i+1][0])i++;const [a,p]=keys[i],[b,q]=keys[i+1],u=ease((t-a)/(b-a));return Object.fromEntries(Object.keys(p).map(k=>[k,lerp(p[k],q[k],u)]));}
 function homography(t,W=1920,H=1080,scale=1){
  const p=pose(t),d=Math.PI/180;
  const cx=Math.cos(p.rx*d),sx=Math.sin(p.rx*d),cy=Math.cos(p.ry*d),sy=Math.sin(p.ry*d),cz=Math.cos(p.rz*d),sz=Math.sin(p.rz*d);
@@ -28,9 +22,9 @@ export function applyRipple(input,t,{width:W=1920,height:H=1080,scale=1}={}){
  const corners=[[0,0],[1600,0],[1600,900],[0,900]].map(([x,y])=>point(m,x,y));
  const x0=Math.max(0,Math.floor(Math.min(...corners.map(p=>p[0])))),x1=Math.min(W-1,Math.ceil(Math.max(...corners.map(p=>p[0]))));
  const y0=Math.max(0,Math.floor(Math.min(...corners.map(p=>p[1])))),y1=Math.min(H-1,Math.ceil(Math.max(...corners.map(p=>p[1]))));
- const waves=[0,.19,.38].map((lag,j)=>{
+ const waves=[0,.13,.26].map((lag,j)=>{
   const a=age-lag;if(a<=0)return null;
-  return {radius:a*610,width:18+a*8,amp:[11.8,7.4,4.3][j]*ease(a/.16)*Math.exp(-a*.53)*(1-ease((age-2.7)/.7))};
+  return {radius:a*850,width:18+a*10,amp:[9.8,5.8,3.1][j]*ease(a/.12)*Math.exp(-a*.72)*(1-ease((age-1.8)/.55))};
  }).filter(Boolean);
  for(let y=y0;y<=y1;y++){
   let nx=inv[0]*x0+inv[1]*y+inv[2],ny=inv[3]*x0+inv[4]*y+inv[5],nw=inv[6]*x0+inv[7]*y+inv[8];
@@ -39,7 +33,7 @@ export function applyRipple(input,t,{width:W=1920,height:H=1080,scale=1}={}){
    const qx=Math.abs(X-800)-774,qy=Math.abs(Y-450)-424;
    const inside=26-Math.sqrt(Math.max(qx,0)**2+Math.max(qy,0)**2)-Math.min(Math.max(qx,qy),0);
    if(inside<=0)continue;
-   const dx=X-985,dy=Y-450,r=Math.sqrt(dx*dx+dy*dy),ux=dx/(r||1),uy=dy/(r||1);
+   const dx=X-985,dy=Y-370,r=Math.sqrt(dx*dx+dy*dy),ux=dx/(r||1),uy=dy/(r||1);
    let displacement=0,shade=0;
    for(const wave of waves){
     const q=(r-wave.radius)/wave.width;if(Math.abs(q)>3.8)continue;

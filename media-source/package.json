@@ -1,6 +1,6 @@
 {
   "name": "codex-liquid-glass-startup-media",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "private": true,
   "scripts": {"render": "node render.mjs", "render:wide": "node render.mjs --wide"},
   "dependencies": {

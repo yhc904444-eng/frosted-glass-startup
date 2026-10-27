@@ -20,7 +20,7 @@ for(const [format,width] of [['standard',2880],['wide',3840]]){
   const minf=child(data,media,'minf'),stbl=child(data,minf,'stbl'),stsz=child(data,stbl,'stsz');
   tracks.push({type,...dimensions,duration:duration/timescale,frames:stsz?data.readUInt32BE(stsz.start+8):null});
  }
- assert.equal(tracks.length,1);assert.equal(tracks[0].type,'vide');assert.equal(tracks[0].width,width);assert.equal(tracks[0].height,2160);assert.equal(tracks[0].duration,32);assert.equal(tracks[0].frames,960);
+ assert.equal(tracks.length,1);assert.equal(tracks[0].type,'vide');assert.equal(tracks[0].width,width);assert.equal(tracks[0].height,2160);assert.equal(tracks[0].duration,14);assert.equal(tracks[0].frames,420);
  results.push({format,bytes:data.length,sha256:crypto.createHash('sha256').update(data).digest('hex'),audioStreams:0,...tracks[0]});
 }
 console.log(JSON.stringify({passed:true,files:results},null,2));

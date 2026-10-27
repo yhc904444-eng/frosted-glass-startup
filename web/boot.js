@@ -6,8 +6,9 @@
  const aspect=innerWidth/innerHeight;
  const format=Math.abs(Math.log(aspect/(4/3)))<=Math.abs(Math.log(aspect/(16/9)))?'standard':'wide';
  root.dataset.format=format;
- video.src=`assets/startup-${format}.mp4`;
- finalFrame.src=`assets/final-${format}.png`;
+ const revision='details-14s';root.dataset.revision=revision;
+ video.src=`assets/startup-${format}.mp4?v=${revision}`;
+ finalFrame.src=`assets/final-${format}.png?v=${revision}`;
  const bridge=window.chrome&&window.chrome.webview;
  const post=message=>{if(bridge)bridge.postMessage(message);};
  let playCount=0;
