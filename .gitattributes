@@ -1,0 +1,2 @@
+# Preserve the upstream Microsoft license text byte for byte.
+licenses/*.txt -whitespace

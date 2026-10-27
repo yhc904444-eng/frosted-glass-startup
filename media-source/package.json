@@ -1,0 +1,14 @@
+{
+  "name": "codex-liquid-glass-startup-media",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {"render": "node render.mjs", "render:wide": "node render.mjs --wide"},
+  "dependencies": {
+    "@remotion/bundler": "4.0.536",
+    "@remotion/renderer": "4.0.536",
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "remotion": "4.0.536",
+    "sharp": "0.34.5"
+  }
+}

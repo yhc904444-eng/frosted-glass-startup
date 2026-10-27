@@ -1,0 +1,10 @@
+*{box-sizing:border-box}
+html,body,main{margin:0;width:100%;height:100%;overflow:hidden}
+html{background:#0a1012}
+main{position:relative}
+video,img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center}
+video{outline:none}
+img{opacity:0;pointer-events:none;user-select:none}
+img.held{opacity:1}
+html[data-phase="held"] video{visibility:hidden}
+#slow-help{position:absolute;bottom:18px;left:20px;right:20px;margin:auto;width:fit-content;max-width:90%;padding:10px 16px;border-radius:12px;background:#101820df;color:#ecf4f5;font:13px/1.5 system-ui,sans-serif;pointer-events:none}

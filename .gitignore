@@ -1,0 +1,11 @@
+assets/*.mp4
+assets/*.png
+vendor/
+build/
+dist/
+qa/
+media-source/node_modules/
+media-source/renders/
+*.user
+*.log
+.DS_Store
