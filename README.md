@@ -1,10 +1,10 @@
-# Codex Liquid Glass Startup
+# Frosted Glass Startup
 
-A silent cinematic opening for Codex on Windows. A liquid glass interface assembles in a 14-second film, then holds its final image until the Codex window is ready to use.
+Frosted Glass Startup is a silent cinematic opening for Codex on Windows. A liquid glass interface assembles in a 14-second film, then holds its final image until the Codex window is ready to use.
 
 ![The liquid glass opening](docs/preview.png)
 
-[Watch the 14-second film](https://github.com/yhc904444-eng/codex-liquid-glass-startup/releases/download/v1.1.0/Codex-Liquid-Glass-Startup-1.1.0-Preview.mp4)
+[Watch the 14-second film](https://github.com/yhc904444-eng/frosted-glass-startup/releases/download/v1.1.0/Codex-Liquid-Glass-Startup-1.1.0-Preview.mp4)
 
 A light bead connects glass-edge refraction, a springing send control, miniature file previews, and a floating search palette. The panels settle together and a ripple travels through the assembled interface.
 
@@ -15,7 +15,7 @@ This is an independent community companion, unaffiliated with OpenAI. It works w
 ## Install
 
 1. Install OpenAI Codex for Windows, or the Frosted Glass desktop customization linked above.
-2. Download **Codex-Liquid-Glass-Startup-1.1.0-Windows-x64-Setup.exe** from [Releases](https://github.com/yhc904444-eng/codex-liquid-glass-startup/releases/latest).
+2. Download **Codex-Liquid-Glass-Startup-1.1.0-Windows-x64-Setup.exe** from [Releases](https://github.com/yhc904444-eng/frosted-glass-startup/releases/latest).
 3. Double-click the installer and select **Install**. No terminal, Node.js, Python, developer SDK, or manual configuration is needed.
 4. Open Codex normally. The helper displays the opening once for each new client session. You can also use **Codex Liquid Glass Startup** from the Start menu, or **Preview animation** to watch without launching Codex.
 
