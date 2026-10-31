@@ -10,11 +10,11 @@ A light bead connects glass-edge refraction, a springing send control, miniature
 
 ![Scenes from the opening](docs/storyboard.jpg)
 
-This is an independent community companion, unaffiliated with OpenAI. It works with the official Microsoft Store Codex app and the optional [Codex Liquid Glass desktop customization](https://github.com/yhc904444-eng/codex-liquid-glass). It does not include Codex or an OpenAI account.
+This is an independent community companion, unaffiliated with OpenAI. It works with the official Microsoft Store Codex app and the optional [Frosted Glass desktop customization](https://github.com/yhc904444-eng/frosted-glass). It does not include Codex or an OpenAI account.
 
 ## Install
 
-1. Install OpenAI Codex for Windows, or the Codex Liquid Glass desktop customization linked above.
+1. Install OpenAI Codex for Windows, or the Frosted Glass desktop customization linked above.
 2. Download **Codex-Liquid-Glass-Startup-1.1.0-Windows-x64-Setup.exe** from [Releases](https://github.com/yhc904444-eng/codex-liquid-glass-startup/releases/latest).
 3. Double-click the installer and select **Install**. No terminal, Node.js, Python, developer SDK, or manual configuration is needed.
 4. Open Codex normally. The helper displays the opening once for each new client session. You can also use **Codex Liquid Glass Startup** from the Start menu, or **Preview animation** to watch without launching Codex.
