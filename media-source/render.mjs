@@ -1,50 +1,64 @@
-import path from 'node:path';
-import {fileURLToPath} from 'node:url';
-import {mkdir} from 'node:fs/promises';
-import {spawn,execFileSync} from 'node:child_process';
-import {once} from 'node:events';
 import {createRequire} from 'node:module';
-import {bundle} from '@remotion/bundler';
-import {selectComposition,renderMedia,ensureBrowser} from '@remotion/renderer';
-import sharp from 'sharp';
-import {applyRipple} from './ripple.mjs';
-import {FPS,DURATION,TOTAL_FRAMES} from './src/details-timeline.mjs';
+import path from 'node:path';
+import {mkdir, writeFile, copyFile} from 'node:fs/promises';
+import {verifyOne, makeContactSheet, shared, root, getArg, contactFrames, readSharp} from './verify.mjs';
 
-const root=path.dirname(fileURLToPath(import.meta.url));
-const require=createRequire(import.meta.url);
-const format=process.argv.includes('--wide')?'wide':'standard';
-const id=format==='wide'?'DetailsWide':'DetailsStandard',scale=format==='wide'?2:1.5;
-const width=format==='wide'?3840:2880,height=2160;
-const out=path.join(root,'renders',format),assets=path.resolve(root,'../assets');
-await mkdir(out,{recursive:true});await mkdir(assets,{recursive:true});
-sharp.concurrency(2);
-await ensureBrowser();
-const serveUrl=await bundle({entryPoint:path.join(root,'src/index-startup-details.tsx')});
-const composition=await selectComposition({serveUrl,id,chromiumOptions:{gl:'angle'}});
-const base=path.join(out,'base.mp4'),output=path.join(assets,`startup-${format}.mp4`);
-await renderMedia({serveUrl,composition,scale,outputLocation:base,codec:'h264',crf:14,muted:true,pixelFormat:'yuv420p',concurrency:2,chromiumOptions:{gl:'angle'},timeoutInMilliseconds:90000,onProgress:({progress})=>process.stdout.write(`\rBase ${format}: ${Math.floor(progress*100)}%`)});
-const platform=process.platform==='win32'?'win32-x64-msvc':process.platform==='darwin'?(process.arch==='arm64'?'darwin-arm64':'darwin-x64'):'linux-x64-gnu';
-const ffmpeg=path.join(path.dirname(require.resolve(`@remotion/compositor-${platform}/package.json`)),process.platform==='win32'?'ffmpeg.exe':'ffmpeg');
-const common=['-hide_banner','-loglevel','error','-y'];
-const decoder=spawn(ffmpeg,[...common,'-i',base,'-an','-vf','format=rgb24','-c:v','rawvideo','-f','image2pipe','pipe:1'],{stdio:['ignore','pipe','pipe'],windowsHide:true});
-const encoder=spawn(ffmpeg,[...common,'-f','image2pipe','-c:v','png','-framerate',String(FPS),'-i','pipe:0','-an','-c:v','libx264','-preset','fast','-crf','14','-pix_fmt','yuv420p','-movflags','+faststart','-t',String(DURATION),output],{stdio:['pipe','ignore','pipe'],windowsHide:true});
-let errors='';for(const child of [decoder,encoder])child.stderr.on('data',chunk=>errors=(errors+chunk).slice(-4000));
-const decoded=once(decoder,'close'),encoded=once(encoder,'close');
-let frame=0,offset=0,buffer=Buffer.alloc(width*height*3);
-try{
- for await(const chunk of decoder.stdout){
-  for(let position=0;position<chunk.length;){
-   const size=Math.min(buffer.length-offset,chunk.length-position);chunk.copy(buffer,offset,position,position+size);offset+=size;position+=size;
-   if(offset===buffer.length){
-    const changed=applyRipple(buffer,frame/FPS,{width,height,scale});
-    const png=await sharp(changed,{raw:{width,height,channels:3}}).png({compressionLevel:0,adaptiveFiltering:false}).toBuffer();
-    if(!encoder.stdin.write(png))await once(encoder.stdin,'drain');
-    if(++frame%90===0)process.stdout.write(`\nRefraction ${format}: ${frame}/${TOTAL_FRAMES}`);offset=0;
-   }
+const requireShared = createRequire(path.join(shared, '../package.json'));
+const {bundle} = requireShared('@remotion/bundler');
+const {selectComposition, renderMedia, renderStill, openBrowser} = requireShared('@remotion/renderer');
+const proof = process.argv.includes('--proof');
+const scale = Number(getArg('scale') || 1);
+const concurrency = Number(getArg('concurrency') || 4);
+if (!Number.isInteger(concurrency) || concurrency < 1 || concurrency > 4) throw Error('--concurrency must be 1 to 4.');
+if (!Number.isFinite(scale) || scale <= 0 || scale > 1) throw Error('--scale must be greater than 0 and no greater than 1.');
+const requestedFrames = getArg('frames');
+const frames = requestedFrames ? requestedFrames.split(',').map(Number) : contactFrames;
+if (frames.some(n => !Number.isInteger(n) || n < 0 || n >= 1020)) throw Error('--frames accepts comma-separated integers between 0 and 1019.');
+const browserExecutable = process.env.CHROME_PATH || undefined;
+const serveUrl = await bundle({entryPoint: path.join(root, 'src/index.tsx'), outDir: path.join(root, 'build'), publicDir: path.join(root, 'public'), webpackOverride: config => ({...config, resolve: {...config.resolve, modules: [shared, ...(config.resolve?.modules || ['node_modules'])]}})});
+console.log(JSON.stringify({stage: 'bundle-ready', proof, scale, concurrency}));
+const browser = await openBrowser('chrome', {browserExecutable});
+try {
+  const dir = path.join(root, 'renders', 'wide');
+  await mkdir(dir, {recursive: true});
+  const composition = await selectComposition({serveUrl, id: 'PrintWide', puppeteerInstance: browser, browserExecutable});
+  if (composition.fps !== 60 || composition.durationInFrames !== 1020 || composition.width !== 1920 || composition.height !== 1080) throw Error('Composition must be 1920×1080, 60 fps, and 1020 frames.');
+  if (proof) {
+    const shots = [];
+    for (const frame of frames) {
+      const output = path.join(dir, `proof-${frame}.png`);
+      await renderStill({serveUrl, composition, puppeteerInstance: browser, browserExecutable, frame, scale, output, imageFormat: 'png', timeoutInMilliseconds: 120000});
+      shots.push({file: output, frame});
+      console.log(JSON.stringify({stage: 'proof-frame', frame}));
+    }
+    await makeContactSheet(shots, path.join(dir, 'contact-sheet.jpg'));
+    await mkdir(path.join(root, 'qa'), {recursive: true});
+    const result = {passed: true, revision: 'liquid-glass-print-17s-v1', installed: false, proof: true, scale, frames, output: dir};
+    await writeFile(path.join(root, 'qa', 'proof.json'), JSON.stringify(result, null, 2));
+    console.log(JSON.stringify(result));
+  } else {
+    let lastPercent = -1;
+    if (!process.argv.includes('--finish-only')) {
+      await renderMedia({serveUrl, composition, puppeteerInstance: browser, browserExecutable, outputLocation: path.join(dir, 'registration-print.mp4'), codec: 'h264', crf: 17, pixelFormat: 'yuv420p', muted: true, concurrency, scale, imageFormat: 'png', timeoutInMilliseconds: 120000,
+        // Start a fresh prediction group at the static hold, so the default
+        // 250-frame encoder refresh cannot change its texture partway through.
+        ffmpegOverride: ({args}) => [...args.slice(0,-1), '-force_key_frames', '15.8', ...args.slice(-1)],
+        onProgress: ({progress, renderedFrames}) => {const percent = Math.floor(progress * 20) * 5; if (percent !== lastPercent) {lastPercent = percent; console.log(JSON.stringify({stage: 'render', percent, renderedFrames}));}},
+      });
+    }
+    const result = await verifyOne('wide', {width: Math.round(composition.width * scale), height: Math.round(composition.height * scale)});
+    await writeFile(path.join(dir, 'render.json'), JSON.stringify(result, null, 2));
+    await mkdir(path.join(root, 'qa'), {recursive: true});
+    await writeFile(path.join(root, 'qa', 'media.json'), JSON.stringify({passed: true, revision: 'liquid-glass-print-17s-v1', createdAt: new Date().toISOString(), installed: false, results: [result]}, null, 2));
+    if (scale === 1) {
+      const assets = path.resolve(root, '../assets');
+      await mkdir(assets, {recursive: true});
+      await copyFile(result.video, path.join(assets, 'startup-wide.mp4'));
+      await copyFile(result.final, path.join(assets, 'final-wide.png'));
+      await readSharp()(result.final).resize(960, 540).blur(24).png().toFile(path.join(assets, 'backdrop.png'));
+    }
+    console.log(JSON.stringify({passed: true, result}, null, 2));
   }
- }
- encoder.stdin.end();const [dc]=await decoded,[ec]=await encoded;
- if(dc||ec||frame!==TOTAL_FRAMES||offset)throw Error(`Incomplete render: ${dc},${ec},${frame}. ${errors}`);
- execFileSync(ffmpeg,[...common,'-ss',String((TOTAL_FRAMES-1)/FPS),'-i',output,'-frames:v','1','-c:v','png',path.join(assets,`final-${format}.png`)],{windowsHide:true});
- process.stdout.write(`\nSaved ${output}\n`);
-}catch(error){decoder.kill();encoder.kill();throw error;}
+} finally {
+  await browser.close({silent: true});
+}

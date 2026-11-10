@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
@@ -16,7 +17,7 @@ using Microsoft.Win32;
 internal static class Setup
 {
     internal const string Title = "Codex Liquid Glass Startup";
-    internal const string Version = "1.1.0";
+    internal const string Version = "1.2.0";
     internal const string UninstallKey = @"Software\Microsoft\Windows\CurrentVersion\Uninstall\CodexLiquidGlassStartup";
     internal static readonly string DefaultTarget = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Programs", "CodexLiquidGlassStartup");
     internal static readonly string Data = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "CodexLiquidGlassStartup");
@@ -101,6 +102,8 @@ internal static class Setup
         string stage = Path.Combine(Path.GetTempPath(), "CodexLiquidGlassStartup-" + Guid.NewGuid().ToString("N"));
         string backup = Path.Combine(stage, "rollback");
         string[] files = null;
+        var replaced = new List<string>();
+        bool keepRollback = false;
         bool existed = Directory.Exists(target);
         if (existed && !File.Exists(Path.Combine(target, "install-record.txt"))) throw new InvalidOperationException("The installation folder already exists and is not managed by this installer. Choose another location or contact support.");
         try
@@ -110,16 +113,7 @@ internal static class Setup
             files = Directory.GetFiles(stage, "*", SearchOption.AllDirectories).Select(f => f.Substring(stage.Length + 1)).ToArray();
             if (!test) EnsureRuntime(stage, status);
             string launcher = Path.Combine(target, "CodexCyberStart.exe");
-            if (File.Exists(launcher))
-            {
-                using (var stop = Process.Start(new ProcessStartInfo(launcher, "--stop-watch") { UseShellExecute = false, CreateNoWindow = true })) stop.WaitForExit(3000);
-                Thread.Sleep(350);
-                foreach (var process in Process.GetProcessesByName("CodexCyberStart")) using (process)
-                {
-                    try { if (string.Equals(process.MainModule.FileName, launcher, StringComparison.OrdinalIgnoreCase)) throw new InvalidOperationException("Close the startup preview, then run this installer again."); }
-                    catch (System.ComponentModel.Win32Exception) { }
-                }
-            }
+            StopWatcher(launcher);
             Directory.CreateDirectory(target);
             Directory.CreateDirectory(backup);
             foreach (string file in files)
@@ -127,9 +121,13 @@ internal static class Setup
                 string source = Path.Combine(stage, file), destination = Path.Combine(target, file);
                 if (File.Exists(destination)) { Directory.CreateDirectory(Path.GetDirectoryName(Path.Combine(backup, file))); File.Copy(destination, Path.Combine(backup, file)); }
                 Directory.CreateDirectory(Path.GetDirectoryName(destination));
+                replaced.Add(file);
                 File.Copy(source, destination, true);
             }
-            File.WriteAllLines(Path.Combine(target, "install-record.txt"), files);
+            string record = Path.Combine(target, "install-record.txt");
+            if (File.Exists(record)) File.Copy(record, Path.Combine(backup, "install-record.txt"));
+            replaced.Add("install-record.txt");
+            File.WriteAllLines(record, files);
             if (!test)
             {
                 status("Creating shortcuts…");
@@ -147,16 +145,37 @@ internal static class Setup
         }
         catch
         {
-            if (files != null) foreach (var file in files)
+            foreach (var file in replaced.AsEnumerable().Reverse())
             {
                 string old = Path.Combine(backup, file), destination = Path.Combine(target, file);
-                try { if (File.Exists(old)) File.Copy(old, destination, true); else if (File.Exists(destination)) File.Delete(destination); } catch (IOException) { }
+                try { if (File.Exists(old)) File.Copy(old, destination, true); else if (File.Exists(destination)) File.Delete(destination); }
+                catch (IOException) { keepRollback = true; }
+                catch (UnauthorizedAccessException) { keepRollback = true; }
             }
             throw;
         }
         finally
         {
-            if (Directory.Exists(stage) && stage.StartsWith(Path.GetTempPath(), StringComparison.OrdinalIgnoreCase)) Directory.Delete(stage, true);
+            if (!keepRollback && Directory.Exists(stage) && stage.StartsWith(Path.GetTempPath(), StringComparison.OrdinalIgnoreCase)) Directory.Delete(stage, true);
+        }
+    }
+
+    private static void StopWatcher(string launcher)
+    {
+        if (!File.Exists(launcher)) return;
+        using (var stop = Process.Start(new ProcessStartInfo(launcher, "--stop-watch") { UseShellExecute = false, CreateNoWindow = true }))
+        {
+            if (!stop.WaitForExit(10000)) throw new InvalidOperationException("The startup helper is still closing. Wait a moment, then run Setup again.");
+            if (stop.ExitCode != 0) throw new InvalidOperationException("The startup helper could not close normally. Close the startup preview, then run Setup again.");
+        }
+        Thread.Sleep(350);
+        foreach (var process in Process.GetProcessesByName("CodexCyberStart")) using (process)
+        {
+            string path;
+            try { path = process.MainModule.FileName; }
+            catch (System.ComponentModel.Win32Exception) { continue; }
+            catch (InvalidOperationException) { continue; }
+            if (string.Equals(path, launcher, StringComparison.OrdinalIgnoreCase)) throw new InvalidOperationException("Close the startup preview, then run Setup again.");
         }
     }
 
@@ -215,8 +234,7 @@ internal static class Setup
         if (!File.Exists(record)) throw new InvalidOperationException("No matching installation record was found.");
         if (!test && !string.Equals(Path.GetFullPath(target), Path.GetFullPath(DefaultTarget), StringComparison.OrdinalIgnoreCase)) throw new InvalidOperationException("Invalid uninstall target.");
         string launcher = Path.Combine(target, "CodexCyberStart.exe");
-        if (File.Exists(launcher)) using (var stop = Process.Start(new ProcessStartInfo(launcher, "--stop-watch") { UseShellExecute = false, CreateNoWindow = true })) stop.WaitForExit(3000);
-        Thread.Sleep(350);
+        StopWatcher(launcher);
         foreach (var file in File.ReadAllLines(record))
         {
             string path = Path.GetFullPath(Path.Combine(target, file));
@@ -249,7 +267,7 @@ internal sealed class Wizard : Form
         FormBorderStyle = FormBorderStyle.FixedDialog; MaximizeBox = false; Font = new Font("Segoe UI", 10);
         var heading = new Label { Text = Setup.Title, Font = new Font("Segoe UI", 18, FontStyle.Bold), AutoSize = true, Location = new Point(24, 24) };
         message.SetBounds(26, 78, 538, 130);
-        message.Text = "A silent, 14-second liquid glass opening for Codex.\r\n\r\nSetup installs this app for your Windows account and automatically sets up Microsoft WebView2 if needed. Internet may be required. Install OpenAI Codex or Codex Liquid Glass to open a workspace; Preview works independently.";
+        message.Text = "A silent, 17-second liquid glass opening for Codex.\r\n\r\nA glass droplet unfolds into a transparent printing surface, layers align, and the workspace takes shape. Setup installs this app for your Windows account and sets up Microsoft WebView2 if needed. Install Codex to open a workspace; Preview works independently.";
         auto.Text = "Play when Codex opens (start the helper with Windows)"; auto.SetBounds(27, 220, 535, 30); auto.Checked = true;
         install.Text = "Install"; install.SetBounds(434, 280, 130, 36); install.Click += Install;
         preview.Text = "Preview"; preview.SetBounds(285, 280, 130, 36); preview.Visible = false;

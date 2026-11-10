@@ -1,4 +1,4 @@
-[CmdletBinding()]
+﻿[CmdletBinding()]
 param([switch]$SkipDependencyDownload)
 $ErrorActionPreference='Stop'
 $projectRoot=$PSScriptRoot
@@ -20,7 +20,7 @@ $appSources=@('AssemblyInfo.cs','Program.cs','ClientWatcher.cs','StartupSessions
 & $compiler /nologo /target:winexe /platform:x64 /optimize+ "/out:$payloadRoot\CodexCyberStart.exe" "/win32manifest:$projectRoot\src\app.manifest" /reference:System.dll /reference:System.Core.dll /reference:System.Drawing.dll /reference:System.Windows.Forms.dll "/reference:$automation\UIAutomationClient.dll" "/reference:$automation\UIAutomationTypes.dll" "/reference:$automation\WindowsBase.dll" "/reference:$core" "/reference:$forms" $appSources
 if($LASTEXITCODE -ne 0){throw 'Launcher compilation failed.'}
 foreach($file in @('index.html','boot.css','boot.js','gate.js')){Copy-Item -LiteralPath (Join-Path $projectRoot ('web\'+$file)) -Destination (Join-Path $payloadRoot 'web')}
-foreach($file in @('startup-standard.mp4','startup-wide.mp4','final-standard.png','final-wide.png')){
+foreach($file in @('startup-wide.mp4','final-wide.png','backdrop.png')){
     $media=Join-Path $projectRoot ('assets\'+$file)
     if(-not(Test-Path -LiteralPath $media)){throw ('Missing media: '+$file+'. See assets/README.md.')}
     Copy-Item -LiteralPath $media -Destination (Join-Path $payloadRoot 'web\assets')
@@ -35,7 +35,7 @@ $checksums=@(Get-ChildItem -LiteralPath $payloadRoot -Recurse -File | Sort-Objec
 Add-Type -AssemblyName System.IO.Compression.FileSystem
 $payloadZip=Join-Path $buildRoot 'payload.zip'
 [IO.Compression.ZipFile]::CreateFromDirectory($payloadRoot,$payloadZip,[IO.Compression.CompressionLevel]::Optimal,$false)
-$setup=Join-Path $releaseRoot 'Codex-Liquid-Glass-Startup-1.1.0-Windows-x64-Setup.exe'
+$setup=Join-Path $releaseRoot 'Codex-Liquid-Glass-Startup-1.2.0-Windows-x64-Setup.exe'
 & $compiler /nologo /target:winexe /platform:x64 /optimize+ "/out:$setup" "/win32manifest:$projectRoot\src\app.manifest" /reference:System.dll /reference:System.Core.dll /reference:System.Drawing.dll /reference:System.Windows.Forms.dll /reference:System.IO.Compression.dll /reference:System.IO.Compression.FileSystem.dll /reference:Microsoft.CSharp.dll "/resource:$payloadZip,payload.zip" (Join-Path $projectRoot 'installer\Setup.cs') (Join-Path $projectRoot 'src\AssemblyInfo.cs')
 if($LASTEXITCODE -ne 0){throw 'Installer compilation failed.'}
 & $compiler /nologo /target:exe /platform:x64 /optimize+ "/out:$buildRoot\StartupPolicyTests.exe" /reference:System.dll /reference:System.Core.dll (Join-Path $projectRoot 'tests\StartupPolicyTests.cs') (Join-Path $projectRoot 'src\StartupSessions.cs') (Join-Path $projectRoot 'src\ReadinessPolicy.cs') (Join-Path $projectRoot 'src\PlaybackPolicy.cs')
@@ -47,7 +47,7 @@ if($LASTEXITCODE -ne 0){throw 'Probe test compilation failed.'}
 & (Join-Path $buildRoot 'ReadinessProbeTests.exe')
 if($LASTEXITCODE -ne 0){throw 'Bounded probe tests failed.'}
 $releaseFiles=@($setup)
-$mediaRelease=Join-Path $releaseRoot 'Codex-Liquid-Glass-Startup-1.1.0-Media.zip'
+$mediaRelease=Join-Path $releaseRoot 'Codex-Liquid-Glass-Startup-1.2.0-Media.zip'
 if(Test-Path -LiteralPath $mediaRelease){$releaseFiles+=$mediaRelease}
 $releaseHashes=@($releaseFiles | ForEach-Object {(Get-FileHash -LiteralPath $_ -Algorithm SHA256).Hash.ToLowerInvariant()+'  '+(Split-Path -Leaf $_)})
 [IO.File]::WriteAllLines((Join-Path $releaseRoot 'SHA256SUMS.txt'),$releaseHashes,[Text.UTF8Encoding]::new($false))

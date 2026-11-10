@@ -1,14 +1,13 @@
 # Release media
 
-Large film files are intentionally excluded from Git. End users should download the ready-to-install Setup.exe; no separate media download is needed.
+Large media files are excluded from Git. End users should download the ready-to-install Setup.exe; it includes all media.
 
-Developers can run `Get-Media.ps1` to fetch the versioned `Codex-Liquid-Glass-Startup-1.1.0-Media.zip` release asset into this folder. It contains exactly:
+Developers can run `Get-Media.ps1` to fetch the hash-pinned `Codex-Liquid-Glass-Startup-1.2.0-Media.zip`. It contains exactly:
 
-| File | Resolution | Duration | Audio |
+| File | Resolution | Content | Audio |
 | --- | --- | --- | --- |
-| startup-standard.mp4 | 2880 × 2160 | 14 s / 420 frames | none |
-| startup-wide.mp4 | 3840 × 2160 | 14 s / 420 frames | none |
-| final-standard.png | 2880 × 2160 | final still | n/a |
-| final-wide.png | 3840 × 2160 | final still | n/a |
+| startup-wide.mp4 | 1920 × 1080 | 17 s / 1020 frames / 60 fps | none |
+| final-wide.png | 1920 × 1080 | decoded final frame | n/a |
+| backdrop.png | 960 × 540 | softened background for other window ratios | n/a |
 
-These assets are covered by the project MIT license, subject to the third-party trademark notice. To render replacements, see `media-source/README.md`.
+The complete film is displayed proportionally without cropping. The final still uses the same sizing; the backdrop fills the remaining area. See [media-source/README.md](../media-source/README.md) to render replacements. Original assets use the project MIT license subject to the third-party trademark notice.

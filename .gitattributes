@@ -1,2 +1,3 @@
 # Preserve the upstream Microsoft license text byte for byte.
 licenses/*.txt -whitespace
+media-source/public/openai-mark.svg -text

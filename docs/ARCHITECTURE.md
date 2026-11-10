@@ -2,7 +2,7 @@
 
 The WinForms launcher hosts a local, restricted WebView2 document with no remote fetches, host objects, permission grants, new windows, or developer tools. A virtual local HTTPS origin serves only the installed `web/` folder.
 
-The film selects the closest aspect ratio, covers its viewport proportionally, and plays once. A completion event switches to the matching final PNG. Both JavaScript and native code require completion plus stable client readiness before automatic entry. The native form uses `WS_EX_TOOLWINDOW` and remains opaque so Chromium can render its first frame behind it. It follows Codex's bounds and uses window ownership to stay with the client.
+The film uses one approved 16:9 master with proportional `contain` sizing and plays once. A softened version of its final frame fills any space around it on other window ratios. A completion event switches to the matching final PNG with the same sizing. Both JavaScript and native code require completion plus stable client readiness before automatic entry. The native form uses `WS_EX_TOOLWINDOW` and remains opaque so Chromium can render its first frame behind it. It follows Codex's bounds and uses window ownership to stay with the client.
 
 Readiness comes from a responsive native window and visible enabled UI Automation controls in a web document. A usable editor/navigation screen, or a visible sign-in/onboarding action, qualifies. Each accessibility observation runs in a disposable child process with a two-second deadline; a stuck provider cannot freeze the launcher. Only that owned child is terminated on timeout. Account contents, chat text, and network responses are not inspected.
 

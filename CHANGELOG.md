@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.2.0
+
+- Wait for the helper's stop request to finish before replacing files, and roll back only files an update actually touched. A locked-file update check verifies that existing payload and installation records survive.
+
+- Replace the opening with the 17-second Liquid Glass Press film at 1080p and 60 fps.
+- Unfold a glass droplet into a transparent surface, print warm and cool layers with clear rollers, and bring them into register before the glass workspace settles.
+- Keep the complete approved composition on different window ratios with proportional contain and a matching softened background.
+- Preserve silent playback, a single play, the exact final-frame hold, and the existing stable-readiness gate.
+- Include editable frame-driven SVG/Remotion sources, refreshed media, preview, installer, and validation records.
+
 ## 1.1.0
 
 - Replace the 32-second opening with a more responsive 14-second English film.

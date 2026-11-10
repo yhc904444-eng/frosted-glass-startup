@@ -1,24 +1,23 @@
-[CmdletBinding()]
+﻿[CmdletBinding()]
 param()
 $ErrorActionPreference='Stop'
-$mediaVersion='1.1.0'
-$mediaHash='d8614be00ca9aed10a86aaafaa910f93148ba82b259ce0c64d677b2a20438946'
+$mediaVersion='1.2.0'
+$mediaHash='efd9723a7d3e2a8aeb564244ec2e58e2c68b1f32800b3cec99870be5dfbb64be'
 $mediaFolder=Join-Path $PSScriptRoot 'assets'
-$mediaFiles=@('startup-standard.mp4','startup-wide.mp4','final-standard.png','final-wide.png')
+$mediaFiles=@('startup-wide.mp4','final-wide.png','backdrop.png')
 $mediaHashes=@{
-    'startup-standard.mp4'='8e95ea128b28ff34962528d0bffe64c35421bce3774bb4d5a11f3e392b9197e3'
-    'startup-wide.mp4'='9733e56b2ebff6b80f4ff9e456ca252fd533374760a66f12bcf5f0d04c87c713'
-    'final-standard.png'='cfd51694f99ef8659f50fb9e2db86f0fcd1186ae86d182a46679556a4dfba79d'
-    'final-wide.png'='3c4f6a28fc3b4b60e248273c4c91fcaec0a0ed57a0500db70e4ca3a04e63c71a'
+    'startup-wide.mp4'='50af9b4f62a53113d68039eb01de4b9956bc85eeff1fb22fce6d3e68f7915b2a'
+    'final-wide.png'='fd763ca9385ee4ff3d8a8a0a93200468f2cfd02a66c1edc98e6544a38ef1c55c'
+    'backdrop.png'='e5c8aa392a5772f88f74006934112f1291722f568e4d2cf68e4ede505b2d3834'
 }
 function Test-MediaFile([string]$name){
     $file=Join-Path $mediaFolder $name
     return (Test-Path -LiteralPath $file) -and ((Get-FileHash -LiteralPath $file -Algorithm SHA256).Hash.ToLowerInvariant() -eq $mediaHashes[$name])
 }
-if(@($mediaFiles | Where-Object {-not(Test-MediaFile $_)}).Count -eq 0){Write-Output 'All four media assets match this version.';return}
+if(@($mediaFiles | Where-Object {-not(Test-MediaFile $_)}).Count -eq 0){Write-Output 'All three media assets match this version.';return}
 New-Item -ItemType Directory -Force -Path $mediaFolder | Out-Null
 $mediaArchive=Join-Path ([IO.Path]::GetTempPath()) ('Codex-Liquid-Glass-Startup-'+$mediaVersion+'-Media.zip')
-Invoke-WebRequest -Uri ('https://github.com/yhc904444-eng/codex-liquid-glass-startup/releases/download/v'+$mediaVersion+'/Codex-Liquid-Glass-Startup-'+$mediaVersion+'-Media.zip') -OutFile $mediaArchive
+Invoke-WebRequest -Uri ('https://github.com/yhc904444-eng/frosted-glass-startup/releases/download/v'+$mediaVersion+'/Codex-Liquid-Glass-Startup-'+$mediaVersion+'-Media.zip') -OutFile $mediaArchive
 if((Get-FileHash -LiteralPath $mediaArchive -Algorithm SHA256).Hash.ToLowerInvariant() -ne $mediaHash){throw 'Downloaded media archive hash does not match this version.'}
 Add-Type -AssemblyName System.IO.Compression.FileSystem
 $mediaZip=[IO.Compression.ZipFile]::OpenRead($mediaArchive)

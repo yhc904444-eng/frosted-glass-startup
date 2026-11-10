@@ -1,12 +1,12 @@
 # Frosted Glass Startup
 
-Frosted Glass Startup is a silent cinematic opening for Codex on Windows. A liquid glass interface assembles in a 14-second film, then holds its final image until the Codex window is ready to use.
+Frosted Glass Startup is a silent cinematic opening for Codex on Windows. A 17-second liquid glass printing sequence turns an idea into a workspace, then holds its final image until the Codex window is ready to use.
 
 ![The liquid glass opening](docs/preview.png)
 
-[Watch the 14-second film](https://github.com/yhc904444-eng/frosted-glass-startup/releases/download/v1.1.0/Codex-Liquid-Glass-Startup-1.1.0-Preview.mp4)
+[Watch the 17-second film](https://github.com/yhc904444-eng/frosted-glass-startup/releases/download/v1.2.0/Codex-Liquid-Glass-Startup-1.2.0-Preview.mp4)
 
-A light bead connects glass-edge refraction, a springing send control, miniature file previews, and a floating search palette. The panels settle together and a ripple travels through the assembled interface.
+A clear droplet spreads into a sheet of glass. Transparent rollers print warm and cool layers across its refracting surface; the colors register, the original vector mark settles into place, and the artwork becomes a glass workspace. The printing is accelerated while the final assembly keeps room to breathe.
 
 ![Scenes from the opening](docs/storyboard.jpg)
 
@@ -15,7 +15,7 @@ This is an independent community companion, unaffiliated with OpenAI. It works w
 ## Install
 
 1. Install OpenAI Codex for Windows, or the Frosted Glass desktop customization linked above.
-2. Download **Codex-Liquid-Glass-Startup-1.1.0-Windows-x64-Setup.exe** from [Releases](https://github.com/yhc904444-eng/frosted-glass-startup/releases/latest).
+2. Download **Codex-Liquid-Glass-Startup-1.2.0-Windows-x64-Setup.exe** from [Releases](https://github.com/yhc904444-eng/frosted-glass-startup/releases/latest).
 3. Double-click the installer and select **Install**. No terminal, Node.js, Python, developer SDK, or manual configuration is needed.
 4. Open Codex normally. The helper displays the opening once for each new client session. You can also use **Codex Liquid Glass Startup** from the Start menu, or **Preview animation** to watch without launching Codex.
 
@@ -25,9 +25,9 @@ The installer is not code-signed, so Windows may show an unknown-publisher warni
 
 ## What it does
 
-- Completely silent: both MP4 files contain zero audio streams, and the video player is muted.
+- Completely silent: the MP4 contains zero audio streams, and the video player is muted.
 - Plays the film once, then shows a still of the final frame without looping.
-- Uses separate high-resolution 4:3 and 16:9 sources and proportional viewport coverage.
+- Displays the complete 1920 × 1080, 60 fps composition without cropping. Other window ratios use a matching softened background around the film.
 - Enters only after film completion and two stable observations of an interactive Codex screen. Sign-in and onboarding actions count as usable screens too.
 - Follows the Codex window without modifying its executable or account settings.
 - Resolves all installation and profile paths on your PC. No developer-specific drive or username is required.
@@ -53,7 +53,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\Build.ps1
 
 `Build.ps1` downloads a pinned WebView2 SDK from NuGet, verifies its SHA-256, downloads Microsoft's signed runtime bootstrapper, builds the native launcher and installer, runs the policy tests, and writes the installer plus SHA-256 to `dist/`. The release payload is an explicit file list; profiles, logs, local QA, account data, and previous installations are excluded.
 
-Media is stored as release assets rather than large Git objects. `Get-Media.ps1` downloads the v1.1.0 media ZIP and verifies its pinned SHA-256 before extraction. See [assets/README.md](assets/README.md) and [media-source/README.md](media-source/README.md) to reproduce the film instead.
+Media is stored as release assets rather than large Git objects. `Get-Media.ps1` downloads the v1.2.0 media ZIP and verifies its pinned SHA-256 before extraction. See [assets/README.md](assets/README.md) and [media-source/README.md](media-source/README.md) to reproduce the film instead.
 
 See [validation](docs/VALIDATION.md), [architecture](docs/ARCHITECTURE.md), and [third-party notices](THIRD-PARTY-NOTICES.md).
 

@@ -3,10 +3,11 @@
  const video=document.getElementById('boot-video');
  const finalFrame=document.getElementById('final-frame');
  const root=document.documentElement;
- const aspect=innerWidth/innerHeight;
- const format=Math.abs(Math.log(aspect/(4/3)))<=Math.abs(Math.log(aspect/(16/9)))?'standard':'wide';
+ // Preserve the approved composition on every window ratio. Any remaining
+ // space uses the matching softened background, without cropping the film.
+ const format='wide';
  root.dataset.format=format;
- const revision='details-14s';root.dataset.revision=revision;
+ const revision='liquid-glass-print-17s-20261110';root.dataset.revision=revision;
  video.src=`assets/startup-${format}.mp4?v=${revision}`;
  finalFrame.src=`assets/final-${format}.png?v=${revision}`;
  const bridge=window.chrome&&window.chrome.webview;
@@ -18,7 +19,7 @@
   post('animation-ended');
   if(!ready)post('video-holding');
  },()=>post('enter-workspace'));
- video.loop=false;
+ video.loop=false;video.muted=true;
  video.addEventListener('ended',()=>gate.finish());
  video.addEventListener('play',()=>{if(gate.ended){video.pause();return;}document.documentElement.dataset.playCount=String(++playCount);post('video-playing');});
  video.addEventListener('error',()=>{post('media-error');gate.finish();});
